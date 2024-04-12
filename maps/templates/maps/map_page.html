@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SolEst</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #mapid {
+            height: 500px;
+            width: 100vw;  /* 100% of the viewport width */
+            position: absolute; /* Map will overlay the padding area */
+            top: 10;
+            left: 0;
+            z-index: 0; /* Ensures the map stays behind text and other elements */
+        }
+        #info {
+            position: absolute;
+            top: 550px; /* Position it right below the map */
+            left: 0;
+            width: 100%; /* Take full width to center text */
+            text-align: left; /* Center the text */
+            z-index: 1; /* Ensures it's visible on top of the map if needed */
+        }
+    </style>
+</head>
+<body>
+    <h1>SolEst</h1>
+    <div id="mapid"></div>
+    <p id="info">Coordinates and nearest town will appear here after selection.</p>
+
+    <script>
+        var map = L.map('mapid').setView([51.1657, 10.4515], 5); // Center map on Germany
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Fetch and add GeoJSON layer
+        fetch('/static/data/3_mittel.geo.json')
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                L.geoJSON(data, {
+                    // Optional: Define style or onEachFeature if needed
+                }).addTo(map);
+            });
+
+        map.on('click', function(e) {
+            var coord = e.latlng;
+            var lat = coord.lat.toFixed(2);
+            var lng = coord.lng.toFixed(2);
+            // Fetch town name using a backend API or another method
+
+            document.getElementById('info').innerHTML = "Coordinates: " + lat + ", " + lng + " / Nearest town: TownName";
+        });
+    </script>
+</body>
+</html>
