@@ -20,5 +20,5 @@ from maps.views import map_page
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', map_page, name='home'),
-    path('maps', include('maps.urls'))
+    path('maps/', include('maps.urls'))
 ]
