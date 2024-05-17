@@ -1,4 +1,5 @@
 /* style.css */
+
 #container {
     display: flex;
     align-items: flex-start;
@@ -18,5 +19,33 @@
 }
 
 #info, #coordinates, #town_name, #irradiation-table, #irradiation-chart {
-    width: 400px; /* Adjust width as needed */
+    width: 100%; /* Adjust width as needed */
+}
+
+#irradiation-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#irradiation-table th, #irradiation-table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+#irradiation-table th {
+    background-color: #f2f2f2;
+}
+
+#irradiation-chart {
+    width: 100%;
+    height: 400px; /* Adjust height as needed */
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
 }

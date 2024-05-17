@@ -36,7 +36,6 @@ def get_irradiation(request):
             # Convert the DataFrame to a dictionary with 'index' orientation
             df_dict = df.to_dict(orient='index')
             yearly_sums_dict = yearly_sums.to_dict()
-            print(yearly_sums_dict)
 
             response_data = {'irradiation': df_dict,
                              'yearly_sums': yearly_sums_dict}
