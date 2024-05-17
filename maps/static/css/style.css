@@ -1,33 +1,22 @@
 /* style.css */
+#container {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px; /* Optional gap between map and data section */
+}
+
 #mapid {
     height: 500px;
-    width: 500px;  /* 100% of the viewport width */
-    position: absolute; /* Map will overlay the padding area */
-    top: 10;
-    left: 50;
-    z-index: 0; /* Ensures the map stays behind text and other elements */
+    width: 500px;
+    flex-shrink: 0; /* Prevents shrinking of the map */
 }
-#info {
-    position: absolute;
-    top: 560px; /* Position it right below the map */
-    left: 50;
-    width: 100%; /* Take full width to center text */
-    text-align: left; /* Center the text */
-    z-index: 1; /* Ensures it's visible on top of the map if needed */
+
+#data-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Optional gap between data items */
 }
-#coordinates {
-    position: absolute;
-    top: 580px; /* Position it right below the info */
-    left: 50;
-    width: 100%; /* Take full width to center text */
-    text-align: left; /* Center the text */
-    z-index: 1; /* Ensures it's visible on top of the map if needed */
-}
-#town_name {
-    position: absolute;
-    top: 600px; /* Position it right below the coordinates */
-    left: 50;
-    width: 100%; /* Take full width to center text */
-    text-align: left; /* Center the text */
-    z-index: 1; /* Ensures it's visible on top of the map if needed */
+
+#info, #coordinates, #town_name, #irradiation-table, #irradiation-chart {
+    width: 400px; /* Adjust width as needed */
 }

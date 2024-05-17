@@ -13,7 +13,6 @@ fetch('/static/data/3_mittel.geo.json')
     })
     .then(function(data) {
         germanyLayer = L.geoJSON(data, {
-
             style: function (feature) {
                 return {
                     fillColor: '#ff7800',  // Color of the fill
@@ -45,6 +44,8 @@ map.on('click', function(e) {
             var lat = coord.lat.toFixed(2);
             var lng = coord.lng.toFixed(2);
             console.log('Fetching location for:', lat, lng);  // Log fetching operation
+
+            // Get the nearest town
             fetch(`/maps/get-location/?lat=${lat}&lng=${lng}`)
                 .then(response => response.json())
                 .then(data => {
@@ -53,6 +54,28 @@ map.on('click', function(e) {
                     document.getElementById('town_name').innerHTML = "Nearest town/city: " + data.location;
                 })
                 .catch(error => console.log('Error:', error));
+
+            // Get the irradiation data
+            fetch('/maps/get-irradiation/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({'lat': lat, 'lon': lng})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    document.getElementById('irradiation-info').innerText = "No irradiation data found.";
+                } else {
+                    const irradiation = data.irradiation;
+                    // Update the table with irradiation data
+                    updateTable(irradiation);
+
+                    // Optionally update a bar chart
+                    updateBarChart(irradiation);
+                }
+            })
+            .catch(error => console.error('Error fetching irradiation:', error));
         } else {
             document.getElementById('info').innerHTML = "Please select a location within Germany only.";
         }
@@ -60,3 +83,52 @@ map.on('click', function(e) {
         console.log('GeoJSON layer is not ready or undefined.');
     }
 });
+
+function updateTableAndChart(data) {
+    // Update the table
+    const table = document.getElementById('irradiation-table');
+    if (table) {
+        let tableRows = '<tr><th>Month</th>';
+        const monthsData = data.irradiation_table;
+
+        // Add year headers
+        const years = Object.keys(monthsData[Object.keys(monthsData)[0]]);
+        years.forEach(year => {
+            tableRows += `<th>${year}</th>`;
+        });
+        tableRows += '</tr>';
+
+        // Add monthly data rows
+        for (const [month, yearData] of Object.entries(monthsData)) {
+            tableRows += `<tr><td>${month}</td>`;
+            years.forEach(year => {
+                tableRows += `<td>${yearData[year] !== undefined ? yearData[year] : 'N/A'} kWh/m²</td>`;
+            });
+            tableRows += '</tr>';
+        }
+
+        table.innerHTML = tableRows;
+    }
+
+    // Update the chart
+    const ctx = document.getElementById('irradiation-chart').getContext('2d');
+    const yearlySums = data.yearly_sums;
+    const chartLabels = Object.keys(yearlySums);
+    const chartValues = Object.values(yearlySums);
+
+    if (chart) {
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Yearly Irradiation (kWh/m²)',
+                data: chartValues,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+            }]
+        }
+    });
+}

@@ -131,3 +131,6 @@ environ.Env.read_env(env.str('DJANGO_READ_DOT_ENV_FILE', '.env'))
 OPENCAGE_API_KEY = env('OPENCAGE_API_KEY')
 if not OPENCAGE_API_KEY:
     raise ValueError("No API key set for OpenCage!")
+
+# Data paths
+DWD_DATA_GLOBAL_IRR_DIR = "/Users/evandro/PycharmProjects/solest_data_handling/processed_data/dwd/global_irradiation/"
