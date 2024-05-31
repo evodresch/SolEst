@@ -31,14 +31,15 @@ def get_irradiation(request):
         try:
             data = json.loads(request.body)
             location = {'latitude': data['lat'], 'longitude': data['lon']}
-            df, yearly_sums = get_irradiation_data(location)
+            df, yearly_sums, long_term_average = get_irradiation_data(location)
 
             # Convert the DataFrame to a dictionary with 'index' orientation
             df_dict = df.to_dict(orient='index')
             yearly_sums_dict = yearly_sums.to_dict()
 
             response_data = {'irradiation': df_dict,
-                             'yearly_sums': yearly_sums_dict}
+                             'yearly_sums': yearly_sums_dict,
+                             'long_term_average': long_term_average}
             return JsonResponse(response_data)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

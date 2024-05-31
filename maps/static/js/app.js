@@ -33,21 +33,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Extract the yearly sums data
         const yearlySums = data.yearly_sums;
-        console.log('Yearly sums:', yearlySums);
+        // console.log('Yearly sums:', yearlySums);
+
+        // Extract the mean irradiation value
+        const meanIrradiation = data.long_term_average.toFixed(1);
+        console.log('Mean Irradiation:', meanIrradiation);
 
         // Update the table
         const table = document.getElementById('irradiation-table');
         if (table) {
-            let tableHeader = '<tr><th>Year</th>';
-            let tableRow = '<tr><td>Irradiation (kWh/m²)</td>';
-
-            for (const [year, irradiation] of Object.entries(yearlySums)) {
-                tableHeader += `<th>${year}</th>`;
-                tableRow += `<td>${irradiation.toFixed()}</td>`;
-            }
-            tableHeader += '</tr>';
-            tableRow += '</tr>';
-            table.innerHTML = tableHeader + tableRow;
+            let tableRows = '<tr><th>Variable</th><th>Value</th></tr>';
+            tableRows += `<tr><td>Average horizontal irradiation (1994-2023)</td><td>${meanIrradiation} kWh/m²</td></tr>`;
+            table.innerHTML = tableRows;
         }
 
         // Update the chart
@@ -64,18 +61,36 @@ document.addEventListener('DOMContentLoaded', function () {
             data: {
                 labels: chartLabels,
                 datasets: [{
-                    label: 'Yearly Irradiation (kWh/m²)',
+                    label: 'Yearly Global Horizontal Irradiation (kWh/m²)',
                     data: chartValues,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                    backgroundColor: 'rgba(255, 180, 27, 0.5)'
                 }]
             },
             options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'DWD Yearly Global Horizontal Irradiation (kWh/m²)',
+                        align: 'start'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.raw.toFixed(1) + ' kWh/m²';
+                            }
+                        }
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Irradiation (kWh/m²)'
+                            text: 'Irradiation (kWh/m²)',
+                            position: 'left'
                         }
                     },
                     x: {
@@ -114,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         document.getElementById('info').innerHTML = "Last selected location";
                         document.getElementById('coordinates').innerHTML = "Latitude: " + lat + ", Longitude: " + lng;
                         document.getElementById('town_name').innerHTML = "Nearest town/city: " + data.location;
+                        document.getElementById('subtitle').innerHTML = "<h3>Climate data for location</h3>"
                     })
                     .catch(error => console.log('Error:', error));
 

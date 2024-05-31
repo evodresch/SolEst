@@ -15,6 +15,7 @@
 #data-section {
     display: flex;
     flex-direction: column;
+    width: 600px;
     gap: 10px; /* Optional gap between data items */
 }
 
@@ -24,11 +25,12 @@
 
 #irradiation-table {
     border-collapse: collapse;
-    width: 100%;
+    max-width: 100%;
+    font-size: 0.9em; /* Smaller font size */
 }
 
 #irradiation-table th, #irradiation-table td {
-    border: 1px solid black;
+    border: 1px solid #ddd; /* Light border color */
     padding: 8px;
     text-align: center;
 }
@@ -47,5 +49,5 @@ body {
 }
 
 h1 {
-    text-align: center;
+    text-align: left;
 }

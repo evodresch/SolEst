@@ -87,5 +87,8 @@ def get_irradiation_data(location):
     # Get only yearly sums for the bar chart
     yearly_sums = df.loc['Yearly Sum',:]
 
-    return df, yearly_sums
+    # Get the long term average
+    long_term_average = np.round(np.mean(yearly_sums), 1)
+
+    return df, yearly_sums, long_term_average
 
