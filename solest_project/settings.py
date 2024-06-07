@@ -134,3 +134,4 @@ if not OPENCAGE_API_KEY:
 
 # Data paths
 DWD_DATA_GLOBAL_IRR_DIR = "/Users/evandro/PycharmProjects/solest_data_handling/processed_data/dwd/global_irradiation/"
+DWD_DATA_AMBIENT_TEMPERATURE_DIR = "/Users/evandro/PycharmProjects/solest_data_handling/processed_data/dwd/ambient_temperature/"

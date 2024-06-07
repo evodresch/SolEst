@@ -1,5 +1,5 @@
 import os
-from .utils import reverse_geocode, get_irradiation_data
+from .utils import reverse_geocode, get_climate_data
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
