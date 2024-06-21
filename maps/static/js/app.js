@@ -28,42 +28,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let chart;
 
-    function updateTableAndChart(data) {
+    function updateTableAndChart(data, type) {
         console.log('Data received for table and chart:', data);
 
         // Extract the yearly sums data
-        const yearlySums = data.yearly_sums;
-        // console.log('Yearly sums:', yearlySums);
+        const yearlySums = data.yearly_sums_irr;
+        const yearlyAveragesTemp = data.yearly_averages_temp;
 
         // Extract the mean irradiation value
-        const meanIrradiation = data.long_term_average.toFixed(1);
+        const meanIrradiation = data.long_term_average_irr.toFixed(1);
+        const meanTemperature = data.long_term_average_temp.toFixed(1);
         console.log('Mean Irradiation:', meanIrradiation);
+        console.log('Mean Temperature:', meanTemperature);
 
         // Update the table
-        const table = document.getElementById('irradiation-table');
+        const table = document.getElementById('climate-table');
         if (table) {
             let tableRows = '<tr><th>Variable</th><th>Value</th></tr>';
             tableRows += `<tr><td>Average horizontal irradiation (1994-2023)</td><td>${meanIrradiation} kWh/m²</td></tr>`;
+            tableRows += `<tr><td>Average temperature (1994-2023)</td><td>${meanTemperature} °C</td></tr>`;
             table.innerHTML = tableRows;
         }
 
         // Update the chart
-        const ctx = document.getElementById('irradiation-chart').getContext('2d');
-        const chartLabels = Object.keys(yearlySums);
-        const chartValues = Object.values(yearlySums);
+        const ctx = document.getElementById('chart').getContext('2d');
+        const chartLabels = Object.keys(type === 'irradiation' ? yearlySums : yearlyAveragesTemp);
+        const chartValues = Object.values(type === 'irradiation' ? yearlySums : yearlyAveragesTemp);
 
         if (chart) {
             chart.destroy();
         }
+
+        // Define colors for the bars
+        const colors = type === 'irradiation' ? 'rgba(255, 180, 27, 0.5)' : 'rgba(54, 162, 235, 0.5)'; // Change colors as needed
 
         chart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: chartLabels,
                 datasets: [{
-                    label: 'Yearly Global Horizontal Irradiation (kWh/m²)',
+                    label: type === 'irradiation' ? 'Yearly Global Horizontal Irradiation (kWh/m²)' : 'Yearly Average Temperature (°C)',
                     data: chartValues,
-                    backgroundColor: 'rgba(255, 180, 27, 0.5)'
+                    backgroundColor: colors, // Set the bar colors here
+                    borderColor: type === 'irradiation' ? 'rgba(255, 180, 27, 1)' : 'rgba(54, 162, 235, 1)', // Optional: border color
+                    borderWidth: 1 // Optional: border width
                 }]
             },
             options: {
@@ -73,13 +81,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     title: {
                         display: true,
-                        text: 'DWD Yearly Global Horizontal Irradiation (kWh/m²)',
+                        text: type === 'irradiation' ? 'DWD Yearly Global Horizontal Irradiation (kWh/m²)' : 'DWD Yearly Average Temperature (°C)',
                         align: 'start'
                     },
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                return context.raw.toFixed(1) + ' kWh/m²';
+                                return context.raw.toFixed(1) + (type === 'irradiation' ? ' kWh/m²' : ' °C');
                             }
                         }
                     }
@@ -89,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Irradiation (kWh/m²)',
+                            text: type === 'irradiation' ? 'Irradiation (kWh/m²)' : 'Temperature (°C)',
                             position: 'left'
                         }
                     },
@@ -102,6 +110,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
+    }
+
+    function fetchDataAndUpdate(lat, lng, type) {
+        fetch('/maps/get-irradiation-temperature/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'lat': lat, 'lon': lng })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                document.getElementById('info').innerText = "No climate data found.";
+            } else {
+                updateTableAndChart(data, type);
+            }
+        })
+        .catch(error => console.error('Error fetching climate data:', error));
     }
 
     map.on('click', function(e) {
@@ -129,30 +155,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         document.getElementById('info').innerHTML = "Last selected location";
                         document.getElementById('coordinates').innerHTML = "Latitude: " + lat + ", Longitude: " + lng;
                         document.getElementById('town_name').innerHTML = "Nearest town/city: " + data.location;
-                        document.getElementById('subtitle').innerHTML = "<h3>Climate data for location</h3>"
+                        document.getElementById('subtitle').innerHTML = "<h3>Climate data for location</h3>";
+                        document.getElementById('controls').innerHTML = `
+                            <label for="data-type">Choose data type to be displayed on graph:</label>
+                            <select id="data-type">
+                                <option value="irradiation">Irradiation</option>
+                                <option value="temperature">Temperature</option>
+                            </select>
+                        `;
+                        document.getElementById('data-type').addEventListener('change', function() {
+                            fetchDataAndUpdate(lat, lng, this.value);
+                        });
+
+                        fetchDataAndUpdate(lat, lng, 'irradiation');
                     })
                     .catch(error => console.log('Error:', error));
-
-                // Get the irradiation data
-                fetch('/maps/get-irradiation/', {  // Update the URL here
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({'lat': lat, 'lon': lng})
-                })
-                .then(response => response.text())  // Get the raw response text
-                .then(text => {
-                    console.log('Raw response text:', text);  // Log the raw response text
-                    return JSON.parse(text);  // Attempt to parse it as JSON
-                })
-                .then(data => {
-                    if (data.error) {
-                        console.error(data.error);
-                        document.getElementById('irradiation-info').innerText = "No irradiation data found.";
-                    } else {
-                        updateTableAndChart(data);
-                    }
-                })
-                .catch(error => console.error('Error fetching irradiation:', error));
             } else {
                 document.getElementById('info').innerHTML = "Please select a location within Germany only.";
             }

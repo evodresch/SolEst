@@ -1,33 +1,32 @@
 <!DOCTYPE html>
-
 {% load static %}
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>SolEst</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-
     <h1>SolEst</h1>
     <div id="container">
         <div id="mapid"></div>
-        <div id="data-section">
+        <div id="info-panel">
+            <h1>SolEst</h1>
             <div id="info">Coordinates, nearest town and climate data will appear here after selection.</div>
             <div id="coordinates"></div>
             <div id="town_name"></div>
             <div id="subtitle"></div>
-            <canvas id="irradiation-chart"></canvas>
-            <table id="irradiation-table"></table>
+            <div id="controls"></div>
+            <div id="chart-container">
+                <canvas id="chart" width="400" height="200"></canvas>
+            </div>
+            <table id="climate-table"></table>
         </div>
     </div>
     <script src="{% static 'js/app.js' %}"></script>
-
 </body>
 </html>

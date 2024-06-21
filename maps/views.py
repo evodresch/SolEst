@@ -23,7 +23,7 @@ def get_location(request):
 
 
 @csrf_exempt
-def get_irradiation(request):
+def get_irradiation_temperature(request):
     """
     Retrieve irradiation data using the get_irradiation_data function
     """
@@ -31,15 +31,24 @@ def get_irradiation(request):
         try:
             data = json.loads(request.body)
             location = {'latitude': data['lat'], 'longitude': data['lon']}
-            df, yearly_sums, long_term_average = get_irradiation_data(location)
+            climate_data = get_climate_data(location)
 
-            # Convert the DataFrame to a dictionary with 'index' orientation
-            df_dict = df.to_dict(orient='index')
-            yearly_sums_dict = yearly_sums.to_dict()
+            # Get the temperature and irradiation data from the dictionary
+            df_irr, yearly_sums_irr, long_term_average_irr = climate_data['irradiation']
+            df_temp, yearly_averages_temp, long_term_average_temp = climate_data['temperature']
 
-            response_data = {'irradiation': df_dict,
-                             'yearly_sums': yearly_sums_dict,
-                             'long_term_average': long_term_average}
+            # Convert the DataFrames to dictionaries with 'index' orientation
+            df_dict_irr = df_irr.to_dict(orient='index')
+            yearly_sums_dict_irr = yearly_sums_irr.to_dict()
+            df_dict_temp = df_temp.to_dict(orient='index')
+            yearly_averages_dict_temp = yearly_averages_temp.to_dict()
+
+            response_data = {'irradiation': df_dict_irr,
+                             'yearly_sums_irr': yearly_sums_dict_irr,
+                             'long_term_average_irr': long_term_average_irr,
+                             'temperature': df_dict_temp,
+                             'yearly_averages_temp': yearly_averages_dict_temp,
+                             'long_term_average_temp': long_term_average_temp}
             return JsonResponse(response_data)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
